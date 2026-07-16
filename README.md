@@ -3,11 +3,17 @@
 
 > One command. Zero human steps. Full failure diagnosis.
 
+![Python](https://img.shields.io/badge/python-3.9+-blue?logo=python&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-green)
+[![Demo report](https://img.shields.io/badge/demo-report.html-purple)](https://github.com/aayushi14a/STRIDE-one-click-automation-framework/blob/main/demo/report.html)
+
 STRIDE automates multi-step SSH test execution, real-time log collection, chained failure detection, and AI-powered root-cause analysis — built in Python, runs from any machine, requires no agent on the target host.
 
 ---
 
 ## What it does
+
+> 📄 **[View a sample HTML report →](demo/report.html)** (download and open in browser)
 
 ```
 $ python src/pipeline.py
@@ -111,8 +117,8 @@ steps:
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/yourname/STRIDE-portfolio
-cd STRIDE-portfolio
+git clone https://github.com/aayushi14a/STRIDE-one-click-automation-framework
+cd STRIDE-one-click-automation-framework
 pip install -r requirements.txt
 
 # 2. Configure your target host
