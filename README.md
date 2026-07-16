@@ -7,7 +7,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 [![Demo report](https://img.shields.io/badge/demo-report.html-purple)](https://github.com/aayushi14a/stride/blob/main/demo/report.html)
 
-STRIDE automates multi-step SSH test execution, real-time log collection, chained failure detection, and AI-powered root-cause analysis — built in Python, runs from any machine, requires no agent on the target host.
+STRIDE is a platform-independent SSH test automation framework - runs from any Linux/Mac/Windows machine against any SSH-accessible host, with no agent or installation required on the target. Write tests once in YAML, run them anywhere. Results are surfaced as a clean HTML report with per-step pass/fail, exit codes, and AI-generated root-cause analysis so engineers never have to grep through raw logs. AI is used only for the final diagnosis step (~400 tokens per failure), keeping costs near-zero while keeping analysis deterministic and fast.
 
 ---
 
@@ -217,7 +217,61 @@ Fix         : Install PostgreSQL: sudo apt install postgresql && sudo systemctl 
 
 ---
 
-## Tech stack
+## MCP server and agent orchestration
+
+STRIDE ships a **Model Context Protocol (MCP) server** (`server/mcp_server.py`) that exposes the pipeline as callable tools. Any MCP-compatible AI client — GitHub Copilot, Claude Desktop, or a custom agent — can invoke these tools conversationally without touching the CLI.
+
+```
+python server/mcp_server.py      # starts the MCP server over stdio
+```
+
+**Exposed tools**
+
+| Tool | What it does |
+|------|-------------|
+| `run_tests` | SSH into target, execute all (or selected) test cases, return structured JSON results |
+| `collect_logs` | Save per-step stdout/stderr to a timestamped `logs/run_*/` directory |
+| `analyze_logs` | Pinpoint exact failed step, command, line number, and output context |
+| `generate_report` | Produce a human-readable report with per-step breakdown and AI root-cause |
+
+**Agent / subagent workflow**
+
+The MCP architecture enables a multi-agent pattern where the AI client acts as an **orchestrator** and STRIDE tools are **subagents**:
+
+```
+User: "Run the database tests and tell me what's broken"
+        │
+        ▼
+  Orchestrator agent (Copilot / Claude)
+        │
+        ├─→ run_tests(selected="TC_06")          ← subagent: executes SSH tests
+        │       returns: {status: failed, steps: [...]}
+        │
+        ├─→ analyze_logs()                        ← subagent: finds failure point
+        │       returns: {step: "6.1", error: "SVC_DOWN", context: [...]}
+        │
+        └─→ generate_report()                     ← subagent: formats + AI RCA
+                returns: "PostgreSQL not installed. Fix: apt install postgresql"
+```
+
+This means an engineer can ask in plain English — *"what failed last night and why?"* — and get a full test run, log analysis, and remediation steps back in a single conversation turn. No CLI, no log files, no manual correlation.
+
+**Connecting to GitHub Copilot (VS Code)**
+
+Add to `.vscode/mcp.json`:
+```json
+{
+  "servers": {
+    "stride": {
+      "command": "python",
+      "args": ["server/mcp_server.py"],
+      "env": { "NS_PASSWORD": "${env:NS_PASSWORD}" }
+    }
+  }
+}
+```
+
+---
 
 - **Python 3.9+** — no compiled dependencies
 - **Paramiko** — SSH2 protocol, interactive stdin/stdout execution
