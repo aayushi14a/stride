@@ -1,0 +1,28 @@
+# Virtual environments
+.venv/
+venv/
+stride_venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Generated run artifacts (timestamped — not committed)
+test_report_*.json
+pipeline_report_*.txt
+logs/
+
+# Keep sample report (committed for demo)
+!samples/
+
+# Secrets
+.env
+*.key
+*.pem
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,52 @@
+# TC_07_docker_chain: Container Runtime Security Chain
+# Single root cause: Docker not installed.
+# Steps 7.2-7.4 are logically dependent on 7.1.
+# AI RCA should identify "Docker not present" as the chain root.
+
+name: Container Runtime Security Chain
+description: >
+  Validates Docker is installed, daemon is running, socket has safe permissions,
+  and no containers are running with elevated privileges. All steps fail if
+  Docker is not installed — a 4-step chained failure from a single root cause.
+tags:
+- chained-failure
+- docker
+- security
+steps:
+- name: 7.1 Docker CLI is installed
+  command: bash
+  responses:
+  - docker --version 2>/dev/null | grep -c Docker
+  - exit
+  wait: 5
+  criteria:
+    expected_output: "1"
+
+- name: 7.2 Docker daemon is running (chained from 7.1)
+  command: bash
+  responses:
+  - systemctl is-active docker 2>/dev/null | grep -xq active && echo SVC_UP || echo SVC_DOWN
+  - exit
+  wait: 5
+  criteria:
+    expected_output: SVC_UP
+
+- name: 7.3 Docker socket has restricted permissions (chained from 7.1)
+  command: bash
+  responses:
+  - stat -c "%a" /var/run/docker.sock 2>/dev/null || echo MISSING
+  - exit
+  wait: 5
+  criteria:
+    expected_output: "660"
+
+- name: 7.4 No containers running as privileged (chained from 7.2)
+  command: bash
+  responses:
+  - cnt=$(docker ps --format '{{.Names}}' 2>/dev/null | wc -l); test "$cnt" -eq 0 && echo NO_CONTAINERS || echo "CONTAINERS_RUNNING:$cnt"
+  - exit
+  wait: 5
+  criteria:
+    expected_output: NO_CONTAINERS
+
+expected_result: Docker installed and running; socket at 660; no privileged containers

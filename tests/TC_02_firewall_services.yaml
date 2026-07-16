@@ -1,0 +1,49 @@
+# TC_02_firewall_services: Firewall and Security Service Audit
+# Checks UFW firewall, fail2ban intrusion prevention, and unexpected open ports.
+# UFW and fail2ban are NOT installed by default — these steps FAIL on a
+# fresh Ubuntu VM, generating real failures for AI RCA to explain.
+
+name: Firewall and Security Services Audit
+description: Validates UFW firewall is active, fail2ban is running, no unintended services exposed
+tags:
+- security
+- firewall
+- services
+steps:
+- name: 2.1 UFW firewall is active
+  command: bash
+  responses:
+  - 'ufw status 2>/dev/null | grep -c "Status: active"'
+  - exit
+  wait: 5
+  criteria:
+    expected_output: "1"
+
+- name: 2.2 fail2ban service is running
+  command: bash
+  responses:
+  - systemctl is-active fail2ban 2>/dev/null | grep -xq active && echo SVC_UP || echo SVC_DOWN
+  - exit
+  wait: 5
+  criteria:
+    expected_output: SVC_UP
+
+- name: 2.3 No unintended HTTP server on port 80
+  command: bash
+  responses:
+  - ss -tlnp 2>/dev/null | grep -q ':80 ' && echo PORT_OPEN || echo PORT_CLOSED
+  - exit
+  wait: 5
+  criteria:
+    expected_output: PORT_CLOSED
+
+- name: 2.4 No unintended HTTPS server on port 443
+  command: bash
+  responses:
+  - ss -tlnp 2>/dev/null | grep -q ':443 ' && echo PORT_OPEN || echo PORT_CLOSED
+  - exit
+  wait: 5
+  criteria:
+    expected_output: PORT_CLOSED
+
+expected_result: UFW active; fail2ban running; ports 80/443 not exposed unexpectedly

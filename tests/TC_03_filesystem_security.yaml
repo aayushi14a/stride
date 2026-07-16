@@ -1,0 +1,57 @@
+# TC_03_filesystem_security: File System Security Audit
+# Checks critical file permissions per CIS Linux Benchmark.
+# sshd_config should be mode 600 — commonly 644 on default installs (FAIL).
+
+name: File System Security Audit
+description: Validates permissions on critical system files and absence of world-writable paths in /etc
+tags:
+- security
+- filesystem
+- permissions
+steps:
+- name: 3.1 /etc/passwd is world-readable but not writable (644)
+  command: bash
+  responses:
+  - stat -c "%a" /etc/passwd
+  - exit
+  wait: 5
+  criteria:
+    expected_output: "644"
+
+- name: 3.2 /etc/shadow has restricted permissions (640 or stricter)
+  command: bash
+  responses:
+  - stat -c "%a" /etc/shadow 2>/dev/null || echo MISSING
+  - exit
+  wait: 5
+  criteria:
+    expected_output: "640"
+
+- name: 3.3 /etc/ssh/sshd_config is owner-readable only (600)
+  command: bash
+  responses:
+  - stat -c "%a" /etc/ssh/sshd_config 2>/dev/null || echo MISSING
+  - exit
+  wait: 5
+  criteria:
+    expected_output: "600"
+
+- name: 3.4 /tmp has sticky bit set
+  command: bash
+  responses:
+  - stat -c "%A" /tmp | tail -c 2
+  - exit
+  wait: 5
+  criteria:
+    expected_output: "t"
+
+- name: 3.5 No world-writable files in /etc
+  command: bash
+  responses:
+  - cnt=$(find /etc -maxdepth 2 -perm -o+w 2>/dev/null | wc -l); test "$cnt" -eq 0 && echo WW_NONE || echo "WW_FOUND:$cnt"
+  - exit
+  wait: 5
+  criteria:
+    expected_output: WW_NONE
+
+expected_result: passwd=644; shadow=640; sshd_config=600; /tmp sticky bit set; no world-writable /etc files

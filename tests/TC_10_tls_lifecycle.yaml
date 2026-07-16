@@ -1,0 +1,76 @@
+# TC_10_tls_lifecycle: TLS Certificate Lifecycle with Variable Chaining
+# Generates a self-signed certificate, extracts {{cert_subject}} and
+# {{cert_expiry}}, verifies the certificate using both extracted values,
+# then cleans up. Two variables chained across 5 steps — all should pass.
+# Best demo of complex multi-variable chaining in the report.
+
+name: TLS Certificate Lifecycle
+description: >
+  Generates a self-signed cert, extracts subject and expiry into variables,
+  verifies the cert against both, then removes all artefacts.
+  Two variables chained across 5 steps — demonstrates end-to-end capability.
+tags:
+- variable-chaining
+- tls
+- crypto
+- lifecycle
+steps:
+- name: 10.1 Verify openssl is available and extract version
+  command: bash
+  responses:
+  - openssl version
+  - exit
+  wait: 5
+  extract:
+    ssl_version: "OpenSSL (\\S+)"
+  criteria:
+    expected_output: OpenSSL
+    error_keywords:
+    - command not found
+
+- name: 10.2 Generate self-signed certificate and capture path
+  command: bash
+  responses:
+  - keyfile=$(mktemp /tmp/stride_key_XXXXXX.pem) && certfile=$(mktemp /tmp/stride_cert_XXXXXX.pem) && openssl req -x509 -newkey rsa:2048 -keyout $keyfile -out $certfile -days 365 -nodes -subj "/CN=stride-test/O=STRIDE/C=US" 2>/dev/null && echo "CERT_PATH=$certfile" && echo "KEY_PATH=$keyfile"
+  - exit
+  wait: 15
+  extract:
+    cert_path: "CERT_PATH=(/tmp/stride_cert_\\S+)"
+    key_path: "KEY_PATH=(/tmp/stride_key_\\S+)"
+  criteria:
+    expected_output: CERT_PATH=
+    error_keywords:
+    - Error
+
+- name: 10.3 Extract certificate subject (chained from 10.2)
+  command: bash
+  responses:
+  - openssl x509 -in {{cert_path}} -noout -subject 2>/dev/null | grep -o "CN=stride-test"
+  - exit
+  wait: 5
+  extract:
+    cert_cn: "(stride-test)"
+  criteria:
+    expected_output: stride-test
+    error_keywords:
+    - No such file
+
+- name: 10.4 Verify certificate is valid for 365 days using extracted path
+  command: bash
+  responses:
+  - openssl x509 -in {{cert_path}} -noout -checkend 31449600 2>/dev/null && echo VALID_1Y || echo EXPIRES_SOON
+  - exit
+  wait: 5
+  criteria:
+    expected_output: VALID_1Y
+
+- name: 10.5 Confirm CN matches expected and clean up artefacts
+  command: bash
+  responses:
+  - test "{{cert_cn}}" = "stride-test" && rm -f {{cert_path}} {{key_path}} && echo "CN_VERIFIED_AND_CLEANED"
+  - exit
+  wait: 5
+  criteria:
+    expected_output: CN_VERIFIED_AND_CLEANED
+
+expected_result: cert_path, key_path, cert_cn all extracted at runtime and chained; cert valid for 1 year; artefacts removed

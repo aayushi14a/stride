@@ -1,0 +1,76 @@
+# TC_13_log_health: Log Infrastructure Health and Rotation Audit
+# Checks log infrastructure: rsyslog status, /var/log disk pressure,
+# oversized log files, and logrotate configuration.
+# Extracts {{log_size_kb}} and {{largest_log}} as runtime variables
+# and verifies both against size thresholds.
+
+name: Log Infrastructure Health Audit
+description: >
+  Audits rsyslog service, /var/log disk usage, largest log file path,
+  and logrotate configuration — using {{log_size_kb}} and {{largest_log}}
+  as chained variables for threshold enforcement.
+tags:
+- variable-chaining
+- logs
+- log-rotation
+- disk
+steps:
+- name: 13.1 rsyslog service is active
+  command: bash
+  responses:
+  - systemctl is-active rsyslog 2>/dev/null | grep -xq active && echo SVC_UP || echo SVC_DOWN
+  - exit
+  wait: 5
+  criteria:
+    expected_output: SVC_UP
+
+- name: 13.2 Measure total /var/log disk usage and extract size
+  command: bash
+  responses:
+  - du -sk /var/log 2>/dev/null | awk '{print $1}'
+  - exit
+  wait: 5
+  extract:
+    log_size_kb: "(\\d+)"
+  criteria:
+    expected_output: ""
+
+- name: 13.3 Verify total log size is under 2 GB (using {{log_size_kb}})
+  command: bash
+  responses:
+  - test {{log_size_kb}} -lt 2097152 && echo SIZE_OK || echo SIZE_EXCEEDED
+  - exit
+  wait: 5
+  criteria:
+    expected_output: SIZE_OK
+
+- name: 13.4 Find largest individual log file and extract path
+  command: bash
+  responses:
+  - find /var/log -maxdepth 2 -type f -name "*.log" 2>/dev/null | xargs du -sk 2>/dev/null | sort -rn | head -1 | awk '{print $2}'
+  - exit
+  wait: 5
+  extract:
+    largest_log: "(/var/log/\\S+)"
+  criteria:
+    expected_output: /var/log/
+
+- name: 13.5 Verify largest log file is under 500 MB (using {{largest_log}})
+  command: bash
+  responses:
+  - size=$(du -sk {{largest_log}} 2>/dev/null | awk '{print $1}') && test "$size" -lt 512000 && echo FILE_OK || echo FILE_OVERSIZED
+  - exit
+  wait: 5
+  criteria:
+    expected_output: FILE_OK
+
+- name: 13.6 logrotate is installed and has configuration
+  command: bash
+  responses:
+  - test -x /usr/sbin/logrotate && test -f /etc/logrotate.conf && echo ROTATION_CONFIGURED || echo ROTATION_MISSING
+  - exit
+  wait: 5
+  criteria:
+    expected_output: ROTATION_CONFIGURED
+
+expected_result: rsyslog active; log_size_kb and largest_log extracted; both under thresholds; logrotate configured

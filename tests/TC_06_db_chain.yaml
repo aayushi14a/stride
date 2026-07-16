@@ -1,0 +1,52 @@
+# TC_06_db_chain: Database Service Availability Chain
+# Single root cause: PostgreSQL not installed.
+# Every downstream step fails because the service never starts.
+# AI RCA should identify "postgresql not installed" as the chain root.
+
+name: Database Service Availability Chain
+description: >
+  Validates PostgreSQL is running, its socket exists, port 5432 is bound,
+  and the service can accept connections. All 4 steps fail if PostgreSQL
+  is not installed — demonstrating a single-root chained failure.
+tags:
+- chained-failure
+- database
+- postgresql
+steps:
+- name: 6.1 PostgreSQL service is active
+  command: bash
+  responses:
+  - systemctl is-active postgresql 2>/dev/null | grep -xq active && echo SVC_UP || echo SVC_DOWN
+  - exit
+  wait: 5
+  criteria:
+    expected_output: SVC_UP
+
+- name: 6.2 PostgreSQL Unix socket exists (chained from 6.1)
+  command: bash
+  responses:
+  - test -S /var/run/postgresql/.s.PGSQL.5432 && echo SOCKET_OK || echo NO_SOCKET
+  - exit
+  wait: 5
+  criteria:
+    expected_output: SOCKET_OK
+
+- name: 6.3 PostgreSQL port 5432 is bound (chained from 6.1)
+  command: bash
+  responses:
+  - ss -tlnp 2>/dev/null | grep -c ':5432'
+  - exit
+  wait: 5
+  criteria:
+    expected_output: "1"
+
+- name: 6.4 PostgreSQL can accept connections (chained from 6.1)
+  command: bash
+  responses:
+  - pg_isready -q 2>/dev/null && echo DB_UP || echo DB_DOWN
+  - exit
+  wait: 5
+  criteria:
+    expected_output: DB_UP
+
+expected_result: All steps pass only when PostgreSQL is installed and running

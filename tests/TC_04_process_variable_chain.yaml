@@ -1,0 +1,57 @@
+# TC_04_process_variable_chain: Live Process Inspection via Variable Chaining
+# Extracts the SSH daemon PID at runtime, then uses {{ssh_pid}} across
+# subsequent steps to inspect memory, verify the binary, and confirm stability.
+# Demonstrates multi-step variable chaining with real runtime data dependencies.
+
+name: Process Inspection with Variable Chaining
+description: Extracts SSH daemon PID dynamically and uses it across steps to inspect the live process
+tags:
+- variable-chaining
+- process
+- ssh
+steps:
+- name: 4.1 Identify SSH daemon PID
+  command: bash
+  responses:
+  - pgrep -x sshd | head -1
+  - exit
+  wait: 5
+  extract:
+    ssh_pid: "^(\\d+)"
+  criteria:
+    expected_output: ""
+    error_keywords:
+    - No such process
+
+- name: 4.2 Confirm process binary via /proc using extracted PID
+  command: bash
+  responses:
+  - cat /proc/{{ssh_pid}}/cmdline 2>/dev/null | tr '\0' ' ' | grep -o sshd || echo NOT_FOUND
+  - exit
+  wait: 5
+  criteria:
+    expected_output: sshd
+    error_keywords:
+    - NOT_FOUND
+
+- name: 4.3 Check resident memory usage of SSH process
+  command: bash
+  responses:
+  - grep VmRSS /proc/{{ssh_pid}}/status 2>/dev/null || echo NOT_FOUND
+  - exit
+  wait: 5
+  criteria:
+    expected_output: VmRSS
+    error_keywords:
+    - NOT_FOUND
+
+- name: 4.4 Verify PID is still alive (process stability check)
+  command: bash
+  responses:
+  - test -d /proc/{{ssh_pid}} && echo ALIVE || echo GONE
+  - exit
+  wait: 5
+  criteria:
+    expected_output: ALIVE
+
+expected_result: SSH PID extracted; used to verify binary, memory usage, and process stability across 4 steps

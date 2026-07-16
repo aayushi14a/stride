@@ -1,0 +1,11 @@
+# Global configuration - host and credentials
+host:
+  hostname: "target-host.example.com"   # Replace with your target host
+  port: 22
+  username: "admin"
+  # Password is read from the NS_PASSWORD environment variable
+  # Set it before running: $env:NS_PASSWORD="yourpassword"  (PowerShell)
+  #                        export NS_PASSWORD=yourpassword  (bash)
+
+# Directory containing individual test YAML files
+tests_dir: "../tests"

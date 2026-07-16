@@ -1,0 +1,66 @@
+# TC_09_log_audit_chain: Security Log Audit with Variable Chaining
+# Extracts recent failed-login count into {{fail_count}}, then uses that
+# value to assess risk level. Also extracts the last failed user into
+# {{failed_user}} and checks if the account is locked.
+# Demonstrates variable chaining where runtime log data drives decisions.
+
+name: Security Log Audit with Variable Chain
+description: >
+  Counts recent SSH auth failures, extracts the value, checks against threshold,
+  and identifies the most recently targeted account via variable chaining.
+tags:
+- variable-chaining
+- security
+- logs
+- ssh
+steps:
+- name: 9.1 Count SSH auth failures in last 24 hours
+  command: bash
+  responses:
+  - journalctl _SYSTEMD_UNIT=ssh.service --since "24 hours ago" 2>/dev/null | grep -c "Failed password"
+  - exit
+  wait: 5
+  extract:
+    fail_count: "^(\\d+)"
+  criteria:
+    expected_output: ""
+
+- name: 9.2 Verify failure count is within acceptable threshold
+  command: bash
+  responses:
+  - test {{fail_count}} -lt 50 && echo WITHIN_THRESHOLD || echo THRESHOLD_EXCEEDED
+  - exit
+  wait: 5
+  criteria:
+    expected_output: WITHIN_THRESHOLD
+
+- name: 9.3 Extract most recently targeted username
+  command: bash
+  responses:
+  - journalctl _SYSTEMD_UNIT=ssh.service --since "24 hours ago" 2>/dev/null | grep "Failed password" | awk '{print $9}' | sort | uniq -c | sort -rn | head -1 | awk '{print $2}' | grep . || echo none
+  - exit
+  wait: 5
+  extract:
+    failed_user: "^(\\S+)"
+  criteria:
+    expected_output: ""
+
+- name: 9.4 Check if targeted account is locked (using extracted username)
+  command: bash
+  responses:
+  - passwd -S {{failed_user}} 2>/dev/null | awk '{print $2}' || echo UNKNOWN
+  - exit
+  wait: 5
+  criteria:
+    expected_output: ""
+
+- name: 9.5 Check for brute-force pattern (same IP, rapid attempts)
+  command: bash
+  responses:
+  - journalctl _SYSTEMD_UNIT=ssh.service --since "1 hour ago" 2>/dev/null | grep "Failed password" | awk '{print $11}' | sort | uniq -c | sort -rn | head -3
+  - exit
+  wait: 5
+  criteria:
+    expected_output: ""
+
+expected_result: Failure count extracted; threshold verified; targeted user identified via {{fail_count}} and {{failed_user}}

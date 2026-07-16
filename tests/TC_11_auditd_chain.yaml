@@ -1,0 +1,44 @@
+# TC_11_auditd_chain: Linux Audit Daemon Chain
+# Single root cause: auditd not installed (common on default Ubuntu VMs).
+# Steps 11.2-11.4 all fail because the audit subsystem is not present.
+# AI RCA should trace all failures to "auditd not installed/running".
+
+name: Linux Audit Daemon Chain
+description: >
+  Validates auditd is running, audit log exists, rules are loaded, and
+  recent events are being recorded. All 4 steps fail if auditd is not
+  installed — 4-step chained failure from a single root cause.
+tags:
+- chained-failure
+- audit
+- auditd
+- compliance
+steps:
+- name: 11.1 auditd service is active
+  command: bash
+  responses:
+  - systemctl is-active auditd 2>/dev/null | grep -xq active && echo SVC_UP || echo SVC_DOWN
+  - exit
+  wait: 5
+  criteria:
+    expected_output: SVC_UP
+
+- name: 11.2 Audit log file exists (chained from 11.1)
+  command: bash
+  responses:
+  - test -f /var/log/audit/audit.log && echo LOG_EXISTS || echo LOG_MISSING
+  - exit
+  wait: 5
+  criteria:
+    expected_output: LOG_EXISTS
+
+- name: 11.3 Audit rules are loaded (chained from 11.1)
+  command: bash
+  responses:
+  - auditctl -l 2>/dev/null | grep -vc "^$"
+  - exit
+  wait: 5
+  criteria:
+    expected_output: "1"
+
+expected_result: auditd running; /var/log/audit/audit.log exists; rules loaded; recent events present

@@ -1,0 +1,68 @@
+# TC_05_resource_lifecycle: Full Resource Lifecycle with Integrity Verification
+# Creates a temp file, extracts its path into {{res_path}}, computes a SHA256
+# checksum into {{checksum}}, verifies integrity by re-hashing expected content,
+# then deletes the resource. Two variables chained across 5 steps.
+
+name: Resource Lifecycle with Integrity Verification
+description: Creates a resource, extracts its path, computes and verifies checksum via variable chaining, then deletes it
+tags:
+- variable-chaining
+- lifecycle
+- integrity
+steps:
+- name: 5.1 Create resource and capture path
+  command: bash
+  responses:
+  - tmpfile=$(mktemp /tmp/stride_XXXXXX) && echo "RESOURCE_PATH=$tmpfile"
+  - exit
+  wait: 5
+  extract:
+    res_path: "RESOURCE_PATH=(/tmp/stride_\\S+)"
+  criteria:
+    expected_output: RESOURCE_PATH=
+    error_keywords:
+    - Permission denied
+
+- name: 5.2 Write known payload to resource
+  command: bash
+  responses:
+  - echo 'stride::payload::v1' > {{res_path}} && echo WRITE_OK
+  - exit
+  wait: 5
+  criteria:
+    expected_output: WRITE_OK
+
+- name: 5.3 Compute SHA256 checksum and extract digest
+  command: bash
+  responses:
+  - sha256sum {{res_path}}
+  - exit
+  wait: 5
+  extract:
+    checksum: "([a-f0-9]{64})"
+  criteria:
+    expected_output: stride_
+    error_keywords:
+    - No such file
+
+- name: 5.4 Verify checksum matches expected payload hash
+  command: bash
+  responses:
+  - echo 'stride::payload::v1' | sha256sum | grep -c {{checksum}} || echo MISMATCH
+  - exit
+  wait: 5
+  criteria:
+    expected_output: "1"
+
+- name: 5.5 Delete resource and confirm removal
+  command: bash
+  responses:
+  - rm {{res_path}} && test ! -f {{res_path}} && echo DELETED_AND_VERIFIED
+  - exit
+  wait: 5
+  criteria:
+    expected_output: DELETED_AND_VERIFIED
+    error_keywords:
+    - No such file
+
+expected_result: res_path and checksum extracted at runtime, used across 5 steps, resource deleted and verified gone

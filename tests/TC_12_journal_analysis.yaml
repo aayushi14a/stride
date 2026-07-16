@@ -1,0 +1,66 @@
+# TC_12_journal_analysis: System Journal Error Analysis with Variable Chaining
+# Extracts live error counts and unit names from journald into variables,
+# then uses those values for threshold checks and targeted follow-up queries.
+# Demonstrates: runtime log data → variable extraction → conditional checks.
+
+name: System Journal Error Analysis
+description: >
+  Counts journal errors, extracts the count into {{error_count}}, checks
+  against a threshold, identifies the top erroring unit into {{top_unit}},
+  then queries that specific unit for details — 5-step variable chain.
+tags:
+- variable-chaining
+- logs
+- journal
+- observability
+steps:
+- name: 12.1 Count ERROR-level journal entries in last hour
+  command: bash
+  responses:
+  - journalctl -p err --since "1 hour ago" 2>/dev/null | grep -vc "^-- " | tail -1
+  - exit
+  wait: 5
+  extract:
+    error_count: "(\\d+)"
+  criteria:
+    expected_output: ""
+
+- name: 12.2 Verify error count is within acceptable threshold (< 100)
+  command: bash
+  responses:
+  - test {{error_count}} -lt 100 && echo WITHIN_THRESHOLD || echo THRESHOLD_EXCEEDED
+  - exit
+  wait: 5
+  criteria:
+    expected_output: WITHIN_THRESHOLD
+
+- name: 12.3 Identify top erroring systemd unit
+  command: bash
+  responses:
+  - journalctl -p err --since "1 hour ago" 2>/dev/null | grep "_SYSTEMD_UNIT=" | sed 's/.*_SYSTEMD_UNIT=//;s/ .*//' | sort | uniq -c | sort -rn | head -1 | awk '{print $2}' | grep . || echo none
+  - exit
+  wait: 5
+  extract:
+    top_unit: "(\\S+)"
+  criteria:
+    expected_output: ""
+
+- name: 12.4 Fetch last 3 error lines from top erroring unit
+  command: bash
+  responses:
+  - journalctl -u {{top_unit}} -p err --since "1 hour ago" 2>/dev/null | tail -3 || echo NO_ERRORS
+  - exit
+  wait: 5
+  criteria:
+    expected_output: ""
+
+- name: 12.5 Check for CRITICAL or EMERGENCY messages in last 24 hours
+  command: bash
+  responses:
+  - cnt=$(journalctl -p crit --since "24 hours ago" 2>/dev/null | grep -vc "^-- "); test "$cnt" -eq 0 && echo CRIT_NONE || echo "CRIT_FOUND:$cnt"
+  - exit
+  wait: 5
+  criteria:
+    expected_output: CRIT_NONE
+
+expected_result: error_count and top_unit extracted; threshold verified; critical message count is 0

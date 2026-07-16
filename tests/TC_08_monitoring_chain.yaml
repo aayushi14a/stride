@@ -1,0 +1,51 @@
+# TC_08_monitoring_chain: Observability Stack Chain
+# Single root cause: Prometheus node_exporter not running.
+# Steps 8.2-8.4 depend on the exporter being alive.
+# AI RCA should trace all failures to "node_exporter not installed/running".
+
+name: Observability Stack Chain
+description: >
+  Validates node_exporter is running, port 9100 is bound, metrics endpoint
+  responds, and CPU metric is present. 4-step chain from single root cause.
+tags:
+- chained-failure
+- monitoring
+- prometheus
+steps:
+- name: 8.1 node_exporter service is active
+  command: bash
+  responses:
+  - systemctl is-active node_exporter 2>/dev/null | grep -xq active && echo SVC_UP || echo SVC_DOWN
+  - exit
+  wait: 5
+  criteria:
+    expected_output: SVC_UP
+
+- name: 8.2 Metrics port 9100 is bound (chained from 8.1)
+  command: bash
+  responses:
+  - ss -tlnp 2>/dev/null | grep -c ':9100'
+  - exit
+  wait: 5
+  criteria:
+    expected_output: "1"
+
+- name: 8.3 Metrics endpoint is reachable (chained from 8.1)
+  command: bash
+  responses:
+  - curl -sf http://localhost:9100/metrics 2>/dev/null | head -3 | grep -c '#'
+  - exit
+  wait: 5
+  criteria:
+    expected_output: "1"
+
+- name: 8.4 CPU metric is present in output (chained from 8.3)
+  command: bash
+  responses:
+  - curl -sf http://localhost:9100/metrics 2>/dev/null | grep -c node_cpu_seconds_total
+  - exit
+  wait: 5
+  criteria:
+    expected_output: "1"
+
+expected_result: node_exporter running on 9100; /metrics endpoint live; CPU metric present
