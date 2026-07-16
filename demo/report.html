@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>STRIDE Report</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f1117;color:#e2e2e2;font-size:14px}
+  .header{background:#161926;padding:24px 32px;border-bottom:1px solid #252840}
+  .title{font-size:22px;font-weight:700;color:#fff;letter-spacing:.5px}
+  .subtitle{font-size:12px;color:#6b7280;margin-top:4px}
+  .stats{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
+  .stat{background:#1e2235;padding:12px 20px;border-radius:8px;min-width:90px}
+  .stat-num{font-size:26px;font-weight:700}
+  .stat-label{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+  .n-total{color:#94a3b8}.n-pass{color:#22c55e}.n-fail{color:#ef4444}.n-err{color:#f59e0b}
+  .content{padding:24px 32px;max-width:1100px}
+  .test-card{background:#161926;border-radius:8px;margin-bottom:10px;border:1px solid #252840;overflow:hidden}
+  .test-header{display:flex;align-items:center;gap:14px;padding:13px 18px;cursor:pointer;user-select:none;transition:background .15s}
+  .test-header:hover{background:#1e2235}
+  .test-header-fail{border-left:3px solid #ef4444}
+  .test-name{flex:1;font-weight:500}
+  .test-meta{font-size:12px;color:#6b7280}
+  .chevron{font-size:10px;color:#6b7280;transition:transform .2s}
+  .chevron.open{transform:rotate(90deg)}
+  .badge{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;white-space:nowrap}
+  .badge-pass{background:#14532d;color:#22c55e}.badge-fail{background:#450a0a;color:#ef4444}.badge-error{background:#451a03;color:#f59e0b}
+  .steps-panel{display:none;padding:0 18px 14px;border-top:1px solid #252840}
+  .steps-panel.open{display:block}
+  .step{margin-top:10px;padding:10px 12px;background:#0f1117;border-radius:6px;border-left:3px solid #252840}
+  .step-pass{border-left-color:#22c55e}.step-fail{border-left-color:#ef4444}.step-error{border-left-color:#f59e0b}
+  .step-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .step-name{flex:1;font-size:13px;font-weight:500}
+  .step-dur{font-size:11px;color:#6b7280}
+  .cmds{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+  .cmd-chip{background:#1e2235;padding:2px 8px;border-radius:4px;font-size:11px;font-family:monospace;color:#94a3b8}
+  .chip{padding:2px 8px;border-radius:4px;font-size:11px;font-family:monospace}
+  .chip-pass{background:#14532d;color:#22c55e}.chip-fail{background:#450a0a;color:#ef4444}.chip-neutral{background:#1e2235;color:#6b7280}
+  .out-label{font-size:10px;color:#6b7280;text-transform:uppercase;margin-top:8px;margin-bottom:3px;letter-spacing:.4px}
+  .err-label{color:#f59e0b}
+  pre{background:#090b0f;padding:9px;border-radius:4px;font-size:11px;color:#94a3b8;white-space:pre-wrap;word-break:break-all;max-height:180px;overflow-y:auto;margin-top:0}
+  pre.pre-err{color:#f59e0b}
+  .failure-line{color:#ef4444;font-size:12px;margin-top:5px;padding-left:2px}
+  .ai-section{margin-top:12px;background:#0d1117;border:1px solid #2a2060;border-radius:6px;padding:12px 14px}
+  .ai-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .ai-badge{background:#2a2060;color:#a78bfa;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;white-space:nowrap}
+  .ai-step-title{font-size:12px;color:#a78bfa;font-weight:600}
+  .ai-row{margin-top:6px;font-size:12px;line-height:1.6}
+  .ai-label{color:#6b7280;min-width:90px;display:inline-block;font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+  .ai-value{color:#e2e2e2}
+  .ai-fix{color:#4ade80}
+  .conf-high{color:#22c55e}.conf-medium{color:#f59e0b}.conf-low{color:#ef4444}
+  .ai-step-block{margin-top:8px;padding-top:8px;border-top:1px solid #1e1a40}
+  .ai-step-block:first-child{margin-top:0;padding-top:0;border-top:none}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="title">STRIDE — Test Automation Report</div>
+  <div class="subtitle">Host: 172.25.242.242 &nbsp;·&nbsp; 2026-07-16 07:44:00 → 2026-07-16 07:45:21</div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num n-total">13</div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-num n-pass">6</div><div class="stat-label">Passed</div></div>
+    <div class="stat"><div class="stat-num n-fail">7</div><div class="stat-label">Failed</div></div>
+    <div class="stat"><div class="stat-num n-err">0</div><div class="stat-label">Errors</div></div>
+  </div>
+</div>
+<div class="content">
+
+        <div class="test-card">
+          <div class="test-header test-header-fail" onclick="toggle(this)">
+            <span class="badge badge-fail">FAIL</span>
+            <span class="test-name">SSH Security Configuration Audit</span>
+            <span class="test-meta">2/5 steps &nbsp;·&nbsp; 9.0s</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="steps-panel">
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">1.1 SSH daemon is active</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">3.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">{ systemctl is-active ssh 2&gt;/dev/null || systemctl is-active sshd 2&gt;/dev/null; } | grep -xq active &amp;&amp; echo SVC_UP || echo SVC_DOWN</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>SVC_UP
+</pre>
+              
+            </div>
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">1.2 PasswordAuthentication is disabled</span>
+                <span class="chip chip-fail">exit 1</span>
+                <span class="step-dur">2.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">grep -cE &quot;^PasswordAuthentication\s+no&quot; /etc/ssh/sshd_config 2&gt;/dev/null</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;1&#x27;</div>
+              <div class="out-label">stdout</div><pre>0
+</pre>
+              
+            </div>
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">1.3 PermitRootLogin is disabled or prohibit-password</span>
+                <span class="chip chip-fail">exit 1</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">grep -cE &quot;^PermitRootLogin\s+(no|prohibit-password)&quot; /etc/ssh/sshd_config 2&gt;/dev/null</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;1&#x27;</div>
+              <div class="out-label">stdout</div><pre>0
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">1.4 SSH is listening on expected port</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">ss -tlnp 2&gt;/dev/null | grep -E &#x27;:22\s&#x27; | awk &#x27;{print $4}&#x27;</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>0.0.0.0:22
+[::]:22
+</pre>
+              
+            </div>
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">1.5 MaxAuthTries set to 3 or fewer</span>
+                <span class="chip chip-fail">exit 1</span>
+                <span class="step-dur">2.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">grep -cE &quot;^MaxAuthTries\s+[123]$&quot; /etc/ssh/sshd_config 2&gt;/dev/null</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;1&#x27;</div>
+              <div class="out-label">stdout</div><pre>0
+</pre>
+              
+            </div>
+            <div class="ai-section">
+              <div class="ai-header"><span class="ai-badge">✦ AI RCA</span></div>
+              
+                <div class="ai-step-block">
+                  <div class="ai-step-title">1.2 PasswordAuthentication is disabled &nbsp;<span class="conf-high">(high confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">The expected output &#x27;1&#x27; was not found, indicating that the command did not return an error code as expected.</span></div>
+                  <div class="ai-row"><span class="ai-label">Why</span><span class="ai-value">This could be due to the command successfully finding the &#x27;PasswordAuthentication no&#x27; line in the sshd_config file, or the command not being executed correctly.</span></div>
+                  <div class="ai-row"><span class="ai-label">Fix</span><span class="ai-fix">Verify that the command is correctly configured and executed, and check the sshd_config file to ensure that &#x27;PasswordAuthentication no&#x27; is present.</span></div>
+                </div>
+
+                <div class="ai-step-block">
+                  <div class="ai-step-title">1.3 PermitRootLogin is disabled or prohibit-password &nbsp;<span class="conf-high">(high confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">The PermitRootLogin setting is not configured as expected.</span></div>
+                  <div class="ai-row"><span class="ai-label">Why</span><span class="ai-value">The &#x27;grep&#x27; command failed to find the expected output, indicating that the PermitRootLogin setting is not set to &#x27;no&#x27; or &#x27;prohibit-password&#x27; in the /etc/ssh/sshd_config file. This could be due to a configuration issue or a missing setting.</span></div>
+                  <div class="ai-row"><span class="ai-label">Fix</span><span class="ai-fix">Verify the PermitRootLogin setting in the /etc/ssh/sshd_config file and ensure it is set to &#x27;no&#x27; or &#x27;prohibit-password&#x27;. If the setting is missing, add it to the file.</span></div>
+                </div>
+
+                <div class="ai-step-block">
+                  <div class="ai-step-title">1.5 MaxAuthTries set to 3 or fewer &nbsp;<span class="conf-low">(low confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">AI unavailable: Expecting &#x27;,&#x27; delimiter: line 3 column 42 (char 140)</span></div>
+                  
+                  
+                </div>
+            </div></div>
+        </div>
+
+        <div class="test-card">
+          <div class="test-header test-header-fail" onclick="toggle(this)">
+            <span class="badge badge-fail">FAIL</span>
+            <span class="test-name">Firewall and Security Services Audit</span>
+            <span class="test-meta">2/4 steps &nbsp;·&nbsp; 5.0s</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="steps-panel">
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">2.1 UFW firewall is active</span>
+                <span class="chip chip-fail">exit 1</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">ufw status 2&gt;/dev/null | grep -c &quot;Status: active&quot;</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;1&#x27;</div>
+              <div class="out-label">stdout</div><pre>0
+</pre>
+              
+            </div>
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">2.2 fail2ban service is running</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">systemctl is-active fail2ban 2&gt;/dev/null | grep -xq active &amp;&amp; echo SVC_UP || echo SVC_DOWN</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;SVC_UP&#x27;</div>
+              <div class="out-label">stdout</div><pre>SVC_DOWN
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">2.3 No unintended HTTP server on port 80</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">2.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">ss -tlnp 2&gt;/dev/null | grep -q &#x27;:80 &#x27; &amp;&amp; echo PORT_OPEN || echo PORT_CLOSED</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>PORT_CLOSED
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">2.4 No unintended HTTPS server on port 443</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">ss -tlnp 2&gt;/dev/null | grep -q &#x27;:443 &#x27; &amp;&amp; echo PORT_OPEN || echo PORT_CLOSED</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>PORT_CLOSED
+</pre>
+              
+            </div>
+            <div class="ai-section">
+              <div class="ai-header"><span class="ai-badge">✦ AI RCA</span></div>
+              
+                <div class="ai-step-block">
+                  <div class="ai-step-title">2.1 UFW firewall is active &nbsp;<span class="conf-high">(high confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">The UFW firewall status command failed to find the expected output.</span></div>
+                  <div class="ai-row"><span class="ai-label">Why</span><span class="ai-value">The command &#x27;ufw status 2&gt;/dev/null | grep -c &quot;Status: active&quot;&#x27; was executed successfully, but the exit code was not as expected. The exit code 1 indicates that the command failed, and the expected output &#x27;1&#x27; was not found in the stdout.</span></div>
+                  <div class="ai-row"><span class="ai-label">Fix</span><span class="ai-fix">Verify the UFW firewall status by running the command manually and check if the output matches the expected value. If the issue persists, check the UFW configuration and ensure it is active.</span></div>
+                </div>
+
+                <div class="ai-step-block">
+                  <div class="ai-step-title">2.2 fail2ban service is running &nbsp;<span class="conf-high">(high confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">The fail2ban service is not running.</span></div>
+                  <div class="ai-row"><span class="ai-label">Why</span><span class="ai-value">The systemctl command executed successfully with an exit code of 0, but the expected output &#x27;SVC_UP&#x27; was not found in the stdout. This suggests that the service is not running, which is why the command output &#x27;SVC_DOWN&#x27;.</span></div>
+                  <div class="ai-row"><span class="ai-label">Fix</span><span class="ai-fix">Verify the fail2ban service status and start it if necessary. Check the service configuration and ensure it is enabled to start at boot.</span></div>
+                </div>
+            </div></div>
+        </div>
+
+        <div class="test-card">
+          <div class="test-header test-header-fail" onclick="toggle(this)">
+            <span class="badge badge-fail">FAIL</span>
+            <span class="test-name">File System Security Audit</span>
+            <span class="test-meta">3/5 steps &nbsp;·&nbsp; 7.0s</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="steps-panel">
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">3.1 /etc/passwd is world-readable but not writable (644)</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">stat -c &quot;%a&quot; /etc/passwd</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>644
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">3.2 /etc/shadow has restricted permissions (640 or stricter)</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">2.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">stat -c &quot;%a&quot; /etc/shadow 2&gt;/dev/null || echo MISSING</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>640
+</pre>
+              
+            </div>
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">3.3 /etc/ssh/sshd_config is owner-readable only (600)</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">stat -c &quot;%a&quot; /etc/ssh/sshd_config 2&gt;/dev/null || echo MISSING</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;600&#x27;</div>
+              <div class="out-label">stdout</div><pre>644
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">3.4 /tmp has sticky bit set</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">stat -c &quot;%A&quot; /tmp | tail -c 2</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>t
+</pre>
+              
+            </div>
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">3.5 No world-writable files in /etc</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">2.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">cnt=$(find /etc -maxdepth 2 -perm -o+w 2&gt;/dev/null | wc -l); test &quot;$cnt&quot; -eq 0 &amp;&amp; echo WW_NONE || echo &quot;WW_FOUND:$cnt&quot;</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;WW_NONE&#x27;</div>
+              <div class="out-label">stdout</div><pre>WW_FOUND:170
+</pre>
+              
+            </div>
+            <div class="ai-section">
+              <div class="ai-header"><span class="ai-badge">✦ AI RCA</span></div>
+              
+                <div class="ai-step-block">
+                  <div class="ai-step-title">3.3 /etc/ssh/sshd_config is owner-readable only (600) &nbsp;<span class="conf-high">(high confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">The SSHD configuration file is not owner-readable only (600) as expected.</span></div>
+                  <div class="ai-row"><span class="ai-label">Why</span><span class="ai-value">The &#x27;stat&#x27; command executed successfully, but the file&#x27;s permissions are 644 instead of 600. This indicates that the file is group- or world-readable, which may compromise file system security.</span></div>
+                  <div class="ai-row"><span class="ai-label">Fix</span><span class="ai-fix">Change the file permissions to 600 using the command &#x27;chmod 600 /etc/ssh/sshd_config&#x27;. Verify the change by re-running the &#x27;stat&#x27; command.</span></div>
+                </div>
+
+                <div class="ai-step-block">
+                  <div class="ai-step-title">3.5 No world-writable files in /etc &nbsp;<span class="conf-high">(high confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">The test failed because it expected no world-writable files in /etc, but found 170 such files.</span></div>
+                  <div class="ai-row"><span class="ai-label">Why</span><span class="ai-value">The command &#x27;cnt=$(find /etc -maxdepth 2 -perm -o+w 2&gt;/dev/null | wc -l)&#x27; correctly identified 170 world-writable files in /etc. The test then failed because it expected this count to be 0.</span></div>
+                  <div class="ai-row"><span class="ai-label">Fix</span><span class="ai-fix">Review the permissions of the 170 files identified in /etc and adjust them to be non-world-writable. This may involve running commands like &#x27;chmod o-w &lt;file&gt;&#x27; to remove write permissions for the &#x27;other&#x27; group.</span></div>
+                </div>
+            </div></div>
+        </div>
+
+        <div class="test-card">
+          <div class="test-header " onclick="toggle(this)">
+            <span class="badge badge-pass">PASS</span>
+            <span class="test-name">Process Inspection with Variable Chaining</span>
+            <span class="test-meta">4/4 steps &nbsp;·&nbsp; 5.0s</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="steps-panel">
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">4.1 Identify SSH daemon PID</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">pgrep -x sshd | head -1</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>2273
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">4.2 Confirm process binary via /proc using extracted PID</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">cat /proc/2273/cmdline 2&gt;/dev/null | tr &#x27;\0&#x27; &#x27; &#x27; | grep -o sshd || echo NOT_FOUND</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>sshd
+sshd
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">4.3 Check resident memory usage of SSH process</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">2.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">grep VmRSS /proc/2273/status 2&gt;/dev/null || echo NOT_FOUND</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>VmRSS:	    7732 kB
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">4.4 Verify PID is still alive (process stability check)</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">test -d /proc/2273 &amp;&amp; echo ALIVE || echo GONE</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>ALIVE
+</pre>
+              
+            </div></div>
+        </div>
+
+        <div class="test-card">
+          <div class="test-header " onclick="toggle(this)">
+            <span class="badge badge-pass">PASS</span>
+            <span class="test-name">Resource Lifecycle with Integrity Verification</span>
+            <span class="test-meta">5/5 steps &nbsp;·&nbsp; 7.0s</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="steps-panel">
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">5.1 Create resource and capture path</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">tmpfile=$(mktemp /tmp/stride_XXXXXX) &amp;&amp; echo &quot;RESOURCE_PATH=$tmpfile&quot;</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>RESOURCE_PATH=/tmp/stride_4eurJW
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">5.2 Write known payload to resource</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">2.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">echo &#x27;stride::payload::v1&#x27; &gt; /tmp/stride_4eurJW &amp;&amp; echo WRITE_OK</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>WRITE_OK
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">5.3 Compute SHA256 checksum and extract digest</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">sha256sum /tmp/stride_4eurJW</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>7cae1c042029fd53bb0024343470d932b44fa4763e8bf50c0b0ca2fdeff2e741  /tmp/stride_4eurJW
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">5.4 Verify checksum matches expected payload hash</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">echo &#x27;stride::payload::v1&#x27; | sha256sum | grep -c 7cae1c042029fd53bb0024343470d932b44fa4763e8bf50c0b0ca2fdeff2e741 || echo MISMATCH</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>1
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">5.5 Delete resource and confirm removal</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">2.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">rm /tmp/stride_4eurJW &amp;&amp; test ! -f /tmp/stride_4eurJW &amp;&amp; echo DELETED_AND_VERIFIED</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>DELETED_AND_VERIFIED
+</pre>
+              
+            </div></div>
+        </div>
+
+        <div class="test-card">
+          <div class="test-header test-header-fail" onclick="toggle(this)">
+            <span class="badge badge-fail">FAIL</span>
+            <span class="test-name">Database Service Availability Chain</span>
+            <span class="test-meta">0/4 steps &nbsp;·&nbsp; 5.0s</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="steps-panel">
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">6.1 PostgreSQL service is active</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">systemctl is-active postgresql 2&gt;/dev/null | grep -xq active &amp;&amp; echo SVC_UP || echo SVC_DOWN</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;SVC_UP&#x27;</div>
+              <div class="out-label">stdout</div><pre>SVC_DOWN
+</pre>
+              
+            </div>
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">6.2 PostgreSQL Unix socket exists (chained from 6.1)</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">test -S /var/run/postgresql/.s.PGSQL.5432 &amp;&amp; echo SOCKET_OK || echo NO_SOCKET</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;SOCKET_OK&#x27;</div>
+              <div class="out-label">stdout</div><pre>NO_SOCKET
+</pre>
+              
+            </div>
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">6.3 PostgreSQL port 5432 is bound (chained from 6.1)</span>
+                <span class="chip chip-fail">exit 1</span>
+                <span class="step-dur">2.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">ss -tlnp 2&gt;/dev/null | grep -c &#x27;:5432&#x27;</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;1&#x27;</div>
+              <div class="out-label">stdout</div><pre>0
+</pre>
+              
+            </div>
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">6.4 PostgreSQL can accept connections (chained from 6.1)</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">pg_isready -q 2&gt;/dev/null &amp;&amp; echo DB_UP || echo DB_DOWN</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;DB_UP&#x27;</div>
+              <div class="out-label">stdout</div><pre>DB_DOWN
+</pre>
+              
+            </div>
+            <div class="ai-section">
+              <div class="ai-header"><span class="ai-badge">✦ AI RCA</span></div>
+              
+                <div class="ai-step-block">
+                  <div class="ai-step-title">6.1 PostgreSQL service is active &nbsp;<span class="conf-high">(high confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">The PostgreSQL service is not active.</span></div>
+                  <div class="ai-row"><span class="ai-label">Why</span><span class="ai-value">The systemctl command executed successfully with exit code 0, but the expected output &#x27;SVC_UP&#x27; was not found in the stdout. This suggests that the service is not running or not in the active state.</span></div>
+                  <div class="ai-row"><span class="ai-label">Fix</span><span class="ai-fix">Verify the PostgreSQL service status and ensure it is running and active. Check the service logs for any errors or restart the service if necessary.</span></div>
+                </div>
+
+                <div class="ai-step-block">
+                  <div class="ai-step-title">6.2 PostgreSQL Unix socket exists (chained from 6.1) &nbsp;<span class="conf-high">(high confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">The PostgreSQL Unix socket does not exist at the expected path.</span></div>
+                  <div class="ai-row"><span class="ai-label">Why</span><span class="ai-value">The test command checks for the existence of the PostgreSQL Unix socket at /var/run/postgresql/.s.PGSQL.5432. The expected output is &#x27;SOCKET_OK&#x27; if the socket exists, but the actual output is &#x27;NO_SOCKET&#x27;, indicating that the socket is not present.</span></div>
+                  <div class="ai-row"><span class="ai-label">Fix</span><span class="ai-fix">Verify that the PostgreSQL service is running and configured correctly, and that the Unix socket path is correct. If the socket path is correct, check the PostgreSQL service logs for any errors related to socket creation or failure.</span></div>
+                </div>
+
+                <div class="ai-step-block">
+                  <div class="ai-step-title">6.3 PostgreSQL port 5432 is bound (chained from 6.1) &nbsp;<span class="conf-high">(high confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">The expected output &#x27;1&#x27; was not found in the stdout, indicating that the command &#x27;ss -tlnp 2&gt;/dev/null | grep -c &#x27;:5432&#x27;&#x27; did not find any processes listening on port 5432.</span></div>
+                  <div class="ai-row"><span class="ai-label">Why</span><span class="ai-value">This failure could be due to the PostgreSQL service not being bound to port 5432, or the command not being executed correctly. It&#x27;s also possible that the service is bound but the command is not correctly configured to find it.</span></div>
+                  <div class="ai-row"><span class="ai-label">Fix</span><span class="ai-fix">Verify that the PostgreSQL service is bound to port 5432 and that the command is correctly configured to find it. Check the service configuration and the command execution to ensure they are correct.</span></div>
+                </div>
+
+                <div class="ai-step-block">
+                  <div class="ai-step-title">6.4 PostgreSQL can accept connections (chained from 6.1) &nbsp;<span class="conf-high">(high confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">The PostgreSQL service is not accepting connections.</span></div>
+                  <div class="ai-row"><span class="ai-label">Why</span><span class="ai-value">The &#x27;pg_isready&#x27; command failed to detect the PostgreSQL service as available, resulting in the expected output &#x27;DB_UP&#x27; not being found. This could be due to the service being down, misconfigured, or not running.</span></div>
+                  <div class="ai-row"><span class="ai-label">Fix</span><span class="ai-fix">Verify that the PostgreSQL service is running and configured correctly. Check the service status and configuration, and ensure that it is listening on the expected port.</span></div>
+                </div>
+            </div></div>
+        </div>
+
+        <div class="test-card">
+          <div class="test-header test-header-fail" onclick="toggle(this)">
+            <span class="badge badge-fail">FAIL</span>
+            <span class="test-name">Container Runtime Security Chain</span>
+            <span class="test-meta">1/4 steps &nbsp;·&nbsp; 5.0s</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="steps-panel">
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">7.1 Docker CLI is installed</span>
+                <span class="chip chip-fail">exit 1</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">docker --version 2&gt;/dev/null | grep -c Docker</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;1&#x27;</div>
+              <div class="out-label">stdout</div><pre>0
+</pre>
+              
+            </div>
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">7.2 Docker daemon is running (chained from 7.1)</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">2.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">systemctl is-active docker 2&gt;/dev/null | grep -xq active &amp;&amp; echo SVC_UP || echo SVC_DOWN</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;SVC_UP&#x27;</div>
+              <div class="out-label">stdout</div><pre>SVC_DOWN
+</pre>
+              
+            </div>
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">7.3 Docker socket has restricted permissions (chained from 7.1)</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">stat -c &quot;%a&quot; /var/run/docker.sock 2&gt;/dev/null || echo MISSING</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;660&#x27;</div>
+              <div class="out-label">stdout</div><pre>MISSING
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">7.4 No containers running as privileged (chained from 7.2)</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">cnt=$(docker ps --format &#x27;{{.Names}}&#x27; 2&gt;/dev/null | wc -l); test &quot;$cnt&quot; -eq 0 &amp;&amp; echo NO_CONTAINERS || echo &quot;CONTAINERS_RUNNING:$cnt&quot;</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>NO_CONTAINERS
+</pre>
+              
+            </div>
+            <div class="ai-section">
+              <div class="ai-header"><span class="ai-badge">✦ AI RCA</span></div>
+              
+                <div class="ai-step-block">
+                  <div class="ai-step-title">7.1 Docker CLI is installed &nbsp;<span class="conf-high">(high confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">The Docker CLI installation check failed due to an unexpected exit code.</span></div>
+                  <div class="ai-row"><span class="ai-label">Why</span><span class="ai-value">The &#x27;docker --version&#x27; command was executed with redirection of stderr to /dev/null, but it still returned a non-zero exit code. This indicates that the command failed or did not produce the expected output.</span></div>
+                  <div class="ai-row"><span class="ai-label">Fix</span><span class="ai-fix">Verify that Docker CLI is installed correctly on the system and check for any syntax errors in the command. If the issue persists, try running the command without redirection to /dev/null to capture the actual error message.</span></div>
+                </div>
+
+                <div class="ai-step-block">
+                  <div class="ai-step-title">7.2 Docker daemon is running (chained from 7.1) &nbsp;<span class="conf-high">(high confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">The Docker daemon is not running.</span></div>
+                  <div class="ai-row"><span class="ai-label">Why</span><span class="ai-value">The command &#x27;systemctl is-active docker 2&gt;/dev/null | grep -xq active&#x27; is checking if the Docker daemon is active, but it&#x27;s returning &#x27;SVC_DOWN&#x27; instead of &#x27;SVC_UP&#x27;. This indicates that the Docker daemon is not running.</span></div>
+                  <div class="ai-row"><span class="ai-label">Fix</span><span class="ai-fix">Verify that the Docker daemon is running and configured correctly. Check the system logs for any errors related to the Docker service.</span></div>
+                </div>
+
+                <div class="ai-step-block">
+                  <div class="ai-step-title">7.3 Docker socket has restricted permissions (chained from 7.1) &nbsp;<span class="conf-low">(low confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">AI unavailable: Expecting &#x27;,&#x27; delimiter: line 3 column 41 (char 136)</span></div>
+                  
+                  
+                </div>
+            </div></div>
+        </div>
+
+        <div class="test-card">
+          <div class="test-header test-header-fail" onclick="toggle(this)">
+            <span class="badge badge-fail">FAIL</span>
+            <span class="test-name">Observability Stack Chain</span>
+            <span class="test-meta">0/4 steps &nbsp;·&nbsp; 6.0s</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="steps-panel">
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">8.1 node_exporter service is active</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">2.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">systemctl is-active node_exporter 2&gt;/dev/null | grep -xq active &amp;&amp; echo SVC_UP || echo SVC_DOWN</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;SVC_UP&#x27;</div>
+              <div class="out-label">stdout</div><pre>SVC_DOWN
+</pre>
+              
+            </div>
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">8.2 Metrics port 9100 is bound (chained from 8.1)</span>
+                <span class="chip chip-fail">exit 1</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">ss -tlnp 2&gt;/dev/null | grep -c &#x27;:9100&#x27;</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;1&#x27;</div>
+              <div class="out-label">stdout</div><pre>0
+</pre>
+              
+            </div>
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">8.3 Metrics endpoint is reachable (chained from 8.1)</span>
+                <span class="chip chip-fail">exit 1</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">curl -sf http://localhost:9100/metrics 2&gt;/dev/null | head -3 | grep -c &#x27;#&#x27;</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;1&#x27;</div>
+              <div class="out-label">stdout</div><pre>0
+</pre>
+              
+            </div>
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">8.4 CPU metric is present in output (chained from 8.3)</span>
+                <span class="chip chip-fail">exit 1</span>
+                <span class="step-dur">2.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">curl -sf http://localhost:9100/metrics 2&gt;/dev/null | grep -c node_cpu_seconds_total</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;1&#x27;</div>
+              <div class="out-label">stdout</div><pre>0
+</pre>
+              
+            </div>
+            <div class="ai-section">
+              <div class="ai-header"><span class="ai-badge">✦ AI RCA</span></div>
+              
+                <div class="ai-step-block">
+                  <div class="ai-step-title">8.1 node_exporter service is active &nbsp;<span class="conf-high">(high confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">The node_exporter service is not active.</span></div>
+                  <div class="ai-row"><span class="ai-label">Why</span><span class="ai-value">The systemctl command executed successfully with an exit code of 0, but the expected output &#x27;SVC_UP&#x27; was not found in the stdout. This suggests that the service is not running or not in the active state.</span></div>
+                  <div class="ai-row"><span class="ai-label">Fix</span><span class="ai-fix">Verify the service status and ensure it is running. If not, start the service and re-run the test.</span></div>
+                </div>
+
+                <div class="ai-step-block">
+                  <div class="ai-step-title">8.2 Metrics port 9100 is bound (chained from 8.1) &nbsp;<span class="conf-high">(high confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">The &#x27;ss&#x27; command failed to find any processes listening on port 9100.</span></div>
+                  <div class="ai-row"><span class="ai-label">Why</span><span class="ai-value">The &#x27;ss&#x27; command is used to check if the port 9100 is bound, but it&#x27;s possible that the port is not in use or the command is not executed correctly. The &#x27;grep&#x27; command is used to count the number of occurrences of &#x27;:9100&#x27; in the output of &#x27;ss&#x27;, but it seems that the expected output &#x27;1&#x27; is not found.</span></div>
+                  <div class="ai-row"><span class="ai-label">Fix</span><span class="ai-fix">Verify that the port 9100 is indeed bound by checking the process list or the application configuration. If the port is bound, check the command execution and the grep pattern to ensure it&#x27;s correct.</span></div>
+                </div>
+
+                <div class="ai-step-block">
+                  <div class="ai-step-title">8.3 Metrics endpoint is reachable (chained from 8.1) &nbsp;<span class="conf-high">(high confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">The curl command failed to find the expected output &#x27;1&#x27; in the metrics endpoint response.</span></div>
+                  <div class="ai-row"><span class="ai-label">Why</span><span class="ai-value">The curl command executed successfully, but the expected output &#x27;1&#x27; was not found in the response. This could be due to an incorrect expected output or a successful response without the expected content.</span></div>
+                  <div class="ai-row"><span class="ai-label">Fix</span><span class="ai-fix">Verify the expected output &#x27;1&#x27; and check the metrics endpoint response to ensure it contains the expected content. Update the expected output if necessary.</span></div>
+                </div>
+
+                <div class="ai-step-block">
+                  <div class="ai-step-title">8.4 CPU metric is present in output (chained from 8.3) &nbsp;<span class="conf-high">(high confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">The expected output &#x27;1&#x27; was not found in the stdout, indicating that the grep command did not find the node_cpu_seconds_total metric.</span></div>
+                  <div class="ai-row"><span class="ai-label">Why</span><span class="ai-value">This could be due to the metric not being present in the output or the grep command not being executed correctly. The curl command was able to fetch the metrics from the localhost:9100, but the grep command failed to find the expected metric.</span></div>
+                  <div class="ai-row"><span class="ai-label">Fix</span><span class="ai-fix">Verify that the node_cpu_seconds_total metric is present in the output by checking the stdout. If the metric is present, check the grep command and ensure it is correctly searching for the metric. If the metric is not present, investigate why it&#x27;s not being reported by the localhost:9100 endpoint.</span></div>
+                </div>
+            </div></div>
+        </div>
+
+        <div class="test-card">
+          <div class="test-header " onclick="toggle(this)">
+            <span class="badge badge-pass">PASS</span>
+            <span class="test-name">Security Log Audit with Variable Chain</span>
+            <span class="test-meta">5/5 steps &nbsp;·&nbsp; 6.0s</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="steps-panel">
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">9.1 Count SSH auth failures in last 24 hours</span>
+                <span class="chip chip-fail">exit 1</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">journalctl _SYSTEMD_UNIT=ssh.service --since &quot;24 hours ago&quot; 2&gt;/dev/null | grep -c &quot;Failed password&quot;</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>0
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">9.2 Verify failure count is within acceptable threshold</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">test 0 -lt 50 &amp;&amp; echo WITHIN_THRESHOLD || echo THRESHOLD_EXCEEDED</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>WITHIN_THRESHOLD
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">9.3 Extract most recently targeted username</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">journalctl _SYSTEMD_UNIT=ssh.service --since &quot;24 hours ago&quot; 2&gt;/dev/null | grep &quot;Failed password&quot; | awk &#x27;{print $9}&#x27; | sort | uniq -c | sort -rn | head -1 | awk &#x27;{print $2}&#x27; | grep . || echo none</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>none
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">9.4 Check if targeted account is locked (using extracted username)</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">2.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">passwd -S none 2&gt;/dev/null | awk &#x27;{print $2}&#x27; || echo UNKNOWN</span><span class="cmd-chip">exit</span></div>
+              
+              
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">9.5 Check for brute-force pattern (same IP, rapid attempts)</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">journalctl _SYSTEMD_UNIT=ssh.service --since &quot;1 hour ago&quot; 2&gt;/dev/null | grep &quot;Failed password&quot; | awk &#x27;{print $11}&#x27; | sort | uniq -c | sort -rn | head -3</span><span class="cmd-chip">exit</span></div>
+              
+              
+              
+            </div></div>
+        </div>
+
+        <div class="test-card">
+          <div class="test-header " onclick="toggle(this)">
+            <span class="badge badge-pass">PASS</span>
+            <span class="test-name">TLS Certificate Lifecycle</span>
+            <span class="test-meta">5/5 steps &nbsp;·&nbsp; 7.0s</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="steps-panel">
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">10.1 Verify openssl is available and extract version</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">openssl version</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>OpenSSL 3.5.5 27 Jan 2026 (Library: OpenSSL 3.5.5 27 Jan 2026)
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">10.2 Generate self-signed certificate and capture path</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">2.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">keyfile=$(mktemp /tmp/stride_key_XXXXXX.pem) &amp;&amp; certfile=$(mktemp /tmp/stride_cert_XXXXXX.pem) &amp;&amp; openssl req -x509 -newkey rsa:2048 -keyout $keyfile -out $certfile -days 365 -nodes -subj &quot;/CN=stride-test/O=STRIDE/C=US&quot; 2&gt;/dev/null &amp;&amp; echo &quot;CERT_PATH=$certfile&quot; &amp;&amp; echo &quot;KEY_PATH=$keyfile&quot;</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>CERT_PATH=/tmp/stride_cert_X9wA2c.pem
+KEY_PATH=/tmp/stride_key_posdMq.pem
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">10.3 Extract certificate subject (chained from 10.2)</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">openssl x509 -in /tmp/stride_cert_X9wA2c.pem -noout -subject 2&gt;/dev/null | grep -o &quot;CN=stride-test&quot;</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>CN=stride-test
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">10.4 Verify certificate is valid for 365 days using extracted path</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">2.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">openssl x509 -in /tmp/stride_cert_X9wA2c.pem -noout -checkend 31449600 2&gt;/dev/null &amp;&amp; echo VALID_1Y || echo EXPIRES_SOON</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>Certificate will not expire
+VALID_1Y
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">10.5 Confirm CN matches expected and clean up artefacts</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">test &quot;stride-test&quot; = &quot;stride-test&quot; &amp;&amp; rm -f /tmp/stride_cert_X9wA2c.pem /tmp/stride_key_posdMq.pem &amp;&amp; echo &quot;CN_VERIFIED_AND_CLEANED&quot;</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>CN_VERIFIED_AND_CLEANED
+</pre>
+              
+            </div></div>
+        </div>
+
+        <div class="test-card">
+          <div class="test-header test-header-fail" onclick="toggle(this)">
+            <span class="badge badge-fail">FAIL</span>
+            <span class="test-name">Linux Audit Daemon Chain</span>
+            <span class="test-meta">0/3 steps &nbsp;·&nbsp; 4.0s</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="steps-panel">
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">11.1 auditd service is active</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">systemctl is-active auditd 2&gt;/dev/null | grep -xq active &amp;&amp; echo SVC_UP || echo SVC_DOWN</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;SVC_UP&#x27;</div>
+              <div class="out-label">stdout</div><pre>SVC_DOWN
+</pre>
+              
+            </div>
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">11.2 Audit log file exists (chained from 11.1)</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">test -f /var/log/audit/audit.log &amp;&amp; echo LOG_EXISTS || echo LOG_MISSING</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;LOG_EXISTS&#x27;</div>
+              <div class="out-label">stdout</div><pre>LOG_MISSING
+</pre>
+              
+            </div>
+            <div class="step step-fail">
+              <div class="step-row">
+                <span class="badge badge-fail">FAIL</span>
+                <span class="step-name">11.3 Audit rules are loaded (chained from 11.1)</span>
+                <span class="chip chip-fail">exit 1</span>
+                <span class="step-dur">2.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">auditctl -l 2&gt;/dev/null | grep -vc &quot;^$&quot;</span><span class="cmd-chip">exit</span></div>
+              <div class="failure-line">✗ Expected output not found: &#x27;1&#x27;</div>
+              <div class="out-label">stdout</div><pre>0
+</pre>
+              
+            </div>
+            <div class="ai-section">
+              <div class="ai-header"><span class="ai-badge">✦ AI RCA</span></div>
+              
+                <div class="ai-step-block">
+                  <div class="ai-step-title">11.1 auditd service is active &nbsp;<span class="conf-high">(high confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">The auditd service is not active.</span></div>
+                  <div class="ai-row"><span class="ai-label">Why</span><span class="ai-value">The systemctl command executed successfully, but the expected output &#x27;SVC_UP&#x27; was not found in the stdout, indicating that the auditd service is not running.</span></div>
+                  <div class="ai-row"><span class="ai-label">Fix</span><span class="ai-fix">Verify the auditd service status and start it if necessary. Check the auditd service configuration and ensure it is enabled to start at boot.</span></div>
+                </div>
+
+                <div class="ai-step-block">
+                  <div class="ai-step-title">11.2 Audit log file exists (chained from 11.1) &nbsp;<span class="conf-high">(high confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">The expected output &#x27;LOG_EXISTS&#x27; was not found, indicating that the audit log file does not exist.</span></div>
+                  <div class="ai-row"><span class="ai-label">Why</span><span class="ai-value">This failure is likely due to the audit log file not being generated or not being accessible. The test command checks for the existence of the file, but it&#x27;s possible that the file is not present or is not readable.</span></div>
+                  <div class="ai-row"><span class="ai-label">Fix</span><span class="ai-fix">Verify that the audit log file is being generated correctly and is accessible by the test user. Check the audit daemon configuration and ensure that it is running and configured to write to the expected log file.</span></div>
+                </div>
+
+                <div class="ai-step-block">
+                  <div class="ai-step-title">11.3 Audit rules are loaded (chained from 11.1) &nbsp;<span class="conf-high">(high confidence)</span></div>
+                  <div class="ai-row"><span class="ai-label">Root cause</span><span class="ai-value">The expected output &#x27;1&#x27; was not found in the audit rules loaded by auditctl.</span></div>
+                  <div class="ai-row"><span class="ai-label">Why</span><span class="ai-value">The command auditctl -l 2&gt;/dev/null | grep -vc &quot;$&quot;^$&quot;&quot; exit failed to find any audit rules, resulting in an exit code of 1. This could be due to missing or incorrectly configured audit rules.</span></div>
+                  <div class="ai-row"><span class="ai-label">Fix</span><span class="ai-fix">Verify that audit rules are correctly configured and loaded by checking the auditctl configuration file and the system&#x27;s audit log.</span></div>
+                </div>
+            </div></div>
+        </div>
+
+        <div class="test-card">
+          <div class="test-header " onclick="toggle(this)">
+            <span class="badge badge-pass">PASS</span>
+            <span class="test-name">System Journal Error Analysis</span>
+            <span class="test-meta">5/5 steps &nbsp;·&nbsp; 6.0s</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="steps-panel">
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">12.1 Count ERROR-level journal entries in last hour</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">journalctl -p err --since &quot;1 hour ago&quot; 2&gt;/dev/null | grep -vc &quot;^-- &quot; | tail -1</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>6
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">12.2 Verify error count is within acceptable threshold (&lt; 100)</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">test 6 -lt 100 &amp;&amp; echo WITHIN_THRESHOLD || echo THRESHOLD_EXCEEDED</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>WITHIN_THRESHOLD
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">12.3 Identify top erroring systemd unit</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">2.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">journalctl -p err --since &quot;1 hour ago&quot; 2&gt;/dev/null | grep &quot;_SYSTEMD_UNIT=&quot; | sed &#x27;s/.*_SYSTEMD_UNIT=//;s/ .*//&#x27; | sort | uniq -c | sort -rn | head -1 | awk &#x27;{print $2}&#x27; | grep . || echo none</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>none
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">12.4 Fetch last 3 error lines from top erroring unit</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">journalctl -u none -p err --since &quot;1 hour ago&quot; 2&gt;/dev/null | tail -3 || echo NO_ERRORS</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>-- No entries --
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">12.5 Check for CRITICAL or EMERGENCY messages in last 24 hours</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">cnt=$(journalctl -p crit --since &quot;24 hours ago&quot; 2&gt;/dev/null | grep -vc &quot;^-- &quot;); test &quot;$cnt&quot; -eq 0 &amp;&amp; echo CRIT_NONE || echo &quot;CRIT_FOUND:$cnt&quot;</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>CRIT_NONE
+</pre>
+              
+            </div></div>
+        </div>
+
+        <div class="test-card">
+          <div class="test-header " onclick="toggle(this)">
+            <span class="badge badge-pass">PASS</span>
+            <span class="test-name">Log Infrastructure Health Audit</span>
+            <span class="test-meta">6/6 steps &nbsp;·&nbsp; 8.0s</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="steps-panel">
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">13.1 rsyslog service is active</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">2.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">systemctl is-active rsyslog 2&gt;/dev/null | grep -xq active &amp;&amp; echo SVC_UP || echo SVC_DOWN</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>SVC_UP
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">13.2 Measure total /var/log disk usage and extract size</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">du -sk /var/log 2&gt;/dev/null | awk &#x27;{print $1}&#x27;</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>17516
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">13.3 Verify total log size is under 2 GB (using {{log_size_kb}})</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">test 17516 -lt 2097152 &amp;&amp; echo SIZE_OK || echo SIZE_EXCEEDED</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>SIZE_OK
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">13.4 Find largest individual log file and extract path</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">2.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">find /var/log -maxdepth 2 -type f -name &quot;*.log&quot; 2&gt;/dev/null | xargs du -sk 2&gt;/dev/null | sort -rn | head -1 | awk &#x27;{print $2}&#x27;</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>/var/log/dpkg.log
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">13.5 Verify largest log file is under 500 MB (using {{largest_log}})</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">size=$(du -sk /var/log/dpkg.log 2&gt;/dev/null | awk &#x27;{print $1}&#x27;) &amp;&amp; test &quot;$size&quot; -lt 512000 &amp;&amp; echo FILE_OK || echo FILE_OVERSIZED</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>FILE_OK
+</pre>
+              
+            </div>
+            <div class="step step-pass">
+              <div class="step-row">
+                <span class="badge badge-pass">PASS</span>
+                <span class="step-name">13.6 logrotate is installed and has configuration</span>
+                <span class="chip chip-pass">exit 0</span>
+                <span class="step-dur">1.0s</span>
+              </div>
+              <div class="cmds"><span class="cmd-chip">test -x /usr/sbin/logrotate &amp;&amp; test -f /etc/logrotate.conf &amp;&amp; echo ROTATION_CONFIGURED || echo ROTATION_MISSING</span><span class="cmd-chip">exit</span></div>
+              
+              <div class="out-label">stdout</div><pre>ROTATION_CONFIGURED
+</pre>
+              
+            </div></div>
+        </div>
+</div>
+<script>
+function toggle(header){
+  var panel=header.nextElementSibling;
+  var chev=header.querySelector('.chevron');
+  panel.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+// Auto-expand failed tests
+document.querySelectorAll('.test-header-fail').forEach(function(h){toggle(h);});
+</script>
+</body>
+</html>
